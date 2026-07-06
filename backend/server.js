@@ -5,36 +5,37 @@ const port = process.env.PORT || 3000;
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Knex Configuration
-const knexConfig = require('./database/knexfile');
-const environment = process.env.NODE_ENV || 'development';
-const config = knexConfig[environment];
-const knex = require('knex')(config);
+// Knex config wired up for MySQL
+const knex = require('knex')({
+  client: 'mysql2',
+  connection: {
+    host: process.env.DB_HOST || '127.0.0.1',
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  },
+});
 
-// Google APIs Configuration
+// Google Drive API Setup
 const { google } = require('googleapis');
-
-// Securely load credentials from environment variables or a secure file path
 const googleEmail = process.env.GOOGLE_CLIENT_EMAIL;
 const googlePrivateKey = process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : null;
-const existingFileId = process.env.GOOGLE_DRIVE_FILE_ID; // Loaded from .env dynamically
-
-const scopes = ['https://www.googleapis.com/auth/drive'];
+const existingFileId = process.env.GOOGLE_DRIVE_FILE_ID;
 
 const jwtClient = new google.auth.JWT(
   googleEmail,
   null,
   googlePrivateKey,
-  scopes
+  ['https://www.googleapis.com/auth/drive']
 );
-
 const drive = google.drive({ version: 'v3', auth: jwtClient });
 
-// Nodemailer Configuration
+// Nodemailer Setup
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: process.env.SMTP_PORT,
-  secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+  secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
@@ -42,80 +43,63 @@ const transporter = nodemailer.createTransport({
 });
 
 server.use(express.json());
-server.use(express.static(join(__dirname, '..', 'dist')));
+// Serve production assets from the frontend build
+server.use(express.static(join(__dirname, '../frontend/dist')));
 
-// API Route for Form Submission
+// Unified API Endpoint
 server.post('/api/add-user', async (req, res) => {
   const { name, email, phone, message } = req.body;
 
   if (!name || !email || !message) {
-    return res.status(400).json({ error: 'Name, email, and message are required.' });
+    return res.status(400).json({ error: 'Required fields are missing.' });
   }
 
   try {
-    // 1. Save form submission to the SQL Database via Knex
-    // 'submissions' table is now a generic name suitable for commercial templates
+    // 1. Save to MySQL
     await knex('submissions').insert({ name, email, phone, message });
-    console.log('Form submission saved to DB:', { name, email });
 
-    // 2. Fetch existing CSV data directly as text (Fixes the stream race condition)
+    // 2. Sync to Google Drive CSV (Stable Text Fetch)
     let existingData = '';
     try {
       const driveResponse = await drive.files.get({
         fileId: existingFileId,
         alt: 'media',
       }, { responseType: 'text' });
-      
       existingData = driveResponse.data;
-    } catch (driveError) {
-      console.warn('Could not fetch existing CSV, starting fresh or check file ID:', driveError.message);
-      // Fallback in case file is brand new or completely empty
+    } catch (err) {
       existingData = '"Name","Email","Phone","Message"\n';
     }
 
-    // 3. Append the new row safely
-    const newCsvLine = `"${name.replace(/"/g, '""')}","${email.replace(/"/g, '""')}","${phone.replace(/"/g, '""')}","${message.replace(/"/g, '""')}"\n`;
-    const updatedCsvData = existingData + newCsvLine;
-
-    // 4. Update the file on Google Drive stably using async/await
+    const clean = (val) => (val ? val.replace(/"/g, '""') : '');
+    const newCsvLine = `"${clean(name)}","${clean(email)}","${clean(phone)}","${clean(message)}"\n`;
+    
     await drive.files.update({
       fileId: existingFileId,
       resource: { name: 'form_data.csv' },
-      media: {
-        mimeType: 'text/csv',
-        body: updatedCsvData,
-      },
-      fields: 'id',
+      media: { mimeType: 'text/csv', body: existingData + newCsvLine },
     });
 
-    console.log('Google Drive CSV updated successfully.');
-
-    // 5. Optional: Send Email alert if configured
+    // 3. Email Alerts
     if (process.env.SEND_EMAIL_ALERTS === 'true') {
       await transporter.sendMail({
-        from: `"Website Form" <${process.env.EMAIL_USER}>`,
+        from: `"Business Portal" <${process.env.EMAIL_USER}>`,
         to: process.env.ADMIN_ALERT_EMAIL,
-        subject: 'New Commercial Contact Form Submission',
-        html: `<p>You received a new message:</p><ul><li><b>Name:</b> ${name}</li><li><b>Email:</b> ${email}</li><li><b>Message:</b> ${message}</li></ul>`
+        subject: 'New Contact Form Submission',
+        html: `<h3>New Message</h3><ul><li><b>Name:</b> ${name}</li><li><b>Email:</b> ${email}</li><li><b>Message:</b> ${message}</li></ul>`
       });
     }
 
-    return res.status(200).json({
-      message: 'Form submission processed and saved successfully across all layers.',
-    });
-
+    return res.status(200).json({ message: 'Success' });
   } catch (error) {
-    console.error('Critical Strategy Error:', error);
-    return res.status(500).json({ error: 'Internal server error processing submission.' });
+    console.error('Server error:', error);
+    return res.status(500).json({ error: 'Internal processing error.' });
   }
 });
 
 if (process.env.NODE_ENV === 'production') {
   server.get('*', (req, res) => {
-    res.sendFile(join(__dirname, '..', 'dist', 'index.html'));
+    res.sendFile(join(__dirname, '../frontend/dist', 'index.html'));
   });
 }
 
-server.listen(port, () => {
-  console.log(`Commercial Server operating on port ${port}`);
-});
+server.listen(port, () => console.log(`Backend live on port ${port}`));
