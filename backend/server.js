@@ -1,40 +1,79 @@
 const express = require('express');
+const cors = require('cors');
 const { join } = require('path');
-const server = express();
-const port = process.env.PORT || 3000;
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Knex config wired up for MySQL
+const server = express();
+const port = process.env.PORT || 3000;
+
+// Enable CORS for cross-origin frontend requests
+server.use(cors());
+server.use(express.json());
+
+// Dynamic database prefix configuration to avoid table naming conflicts
+const DB_PREFIX = process.env.DB_TABLE_PREFIX || 'sd_';
+const CONTACT_TABLE = `${DB_PREFIX}contact`;
+
+// Knex database configuration
 const knex = require('knex')({
-  client: 'mysql2',
+  client: process.env.DB_CLIENT || 'mysql2',
   connection: {
     host: process.env.DB_HOST || '127.0.0.1',
-    port: process.env.DB_PORT || 3306,
+    port: Number(process.env.DB_PORT) || 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
   },
+  pool: { min: 2, max: 10 },
 });
+
+// Automatic table initialization on startup
+async function initDatabase() {
+  try {
+    const exists = await knex.schema.hasTable(CONTACT_TABLE);
+    if (!exists) {
+      await knex.schema.createTable(CONTACT_TABLE, (table) => {
+        table.increments('id').primary();
+        table.string('name', 255).notNullable();
+        table.string('email', 255).notNullable();
+        table.string('phone', 20);
+        table.text('message').notNullable();
+        table.string('status', 20).defaultTo('unread');
+        table.timestamp('created_at').defaultTo(knex.fn.now());
+      });
+      console.log(`[Database] Table "${CONTACT_TABLE}" initialized successfully.`);
+    } else {
+      console.log(`[Database] Table "${CONTACT_TABLE}" already exists.`);
+    }
+  } catch (error) {
+    console.error('[Database Error] Schema initialization failed:', error);
+  }
+}
 
 // Google Drive API Setup
 const { google } = require('googleapis');
 const googleEmail = process.env.GOOGLE_CLIENT_EMAIL;
-const googlePrivateKey = process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : null;
+const googlePrivateKey = process.env.GOOGLE_PRIVATE_KEY
+  ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
+  : null;
 const existingFileId = process.env.GOOGLE_DRIVE_FILE_ID;
 
-const jwtClient = new google.auth.JWT(
-  googleEmail,
-  null,
-  googlePrivateKey,
-  ['https://www.googleapis.com/auth/drive']
-);
-const drive = google.drive({ version: 'v3', auth: jwtClient });
+let drive = null;
+if (googleEmail && googlePrivateKey) {
+  const jwtClient = new google.auth.JWT(
+    googleEmail,
+    null,
+    googlePrivateKey,
+    ['https://www.googleapis.com/auth/drive']
+  );
+  drive = google.drive({ version: 'v3', auth: jwtClient });
+}
 
-// Nodemailer Setup
+// Nodemailer Transporter Setup
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
+  port: Number(process.env.SMTP_PORT) || 587,
   secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.EMAIL_USER,
@@ -42,11 +81,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-server.use(express.json());
-// Serve production assets from the frontend build
+// Serve frontend static files in production
 server.use(express.static(join(__dirname, '../frontend/dist')));
 
-// Unified API Endpoint
+// Endpoint: Process contact form submissions
 server.post('/api/add-user', async (req, res) => {
   const { name, email, phone, message } = req.body;
 
@@ -55,51 +93,77 @@ server.post('/api/add-user', async (req, res) => {
   }
 
   try {
-    // 1. Save to MySQL
-    await knex('submissions').insert({ name, email, phone, message });
-
-    // 2. Sync to Google Drive CSV (Stable Text Fetch)
-    let existingData = '';
-    try {
-      const driveResponse = await drive.files.get({
-        fileId: existingFileId,
-        alt: 'media',
-      }, { responseType: 'text' });
-      existingData = driveResponse.data;
-    } catch (err) {
-      existingData = '"Name","Email","Phone","Message"\n';
-    }
-
-    const clean = (val) => (val ? val.replace(/"/g, '""') : '');
-    const newCsvLine = `"${clean(name)}","${clean(email)}","${clean(phone)}","${clean(message)}"\n`;
-    
-    await drive.files.update({
-      fileId: existingFileId,
-      resource: { name: 'form_data.csv' },
-      media: { mimeType: 'text/csv', body: existingData + newCsvLine },
+    // 1. Insert message record into buyer's database
+    await knex(CONTACT_TABLE).insert({
+      name,
+      email,
+      phone: phone || null,
+      message,
     });
 
-    // 3. Email Alerts
-    if (process.env.SEND_EMAIL_ALERTS === 'true') {
-      await transporter.sendMail({
-        from: `"Business Portal" <${process.env.EMAIL_USER}>`,
-        to: process.env.ADMIN_ALERT_EMAIL,
-        subject: 'New Contact Form Submission',
-        html: `<h3>New Message</h3><ul><li><b>Name:</b> ${name}</li><li><b>Email:</b> ${email}</li><li><b>Message:</b> ${message}</li></ul>`
-      });
+    // 2. Sync to Google Drive CSV (Optional based on configuration)
+    if (drive && existingFileId) {
+      try {
+        let existingData = '';
+        try {
+          const driveResponse = await drive.files.get(
+            { fileId: existingFileId, alt: 'media' },
+            { responseType: 'text' }
+          );
+          existingData = driveResponse.data;
+        } catch {
+          existingData = '"Name","Email","Phone","Message"\n';
+        }
+
+        const clean = (val) => (val ? String(val).replace(/"/g, '""') : '');
+        const newCsvLine = `"${clean(name)}","${clean(email)}","${clean(phone)}","${clean(message)}"\n`;
+
+        await drive.files.update({
+          fileId: existingFileId,
+          resource: { name: 'form_data.csv' },
+          media: { mimeType: 'text/csv', body: existingData + newCsvLine },
+        });
+      } catch (driveErr) {
+        console.error('[Google Drive Error] Failed to sync CSV:', driveErr.message);
+      }
     }
 
-    return res.status(200).json({ message: 'Success' });
+    // 3. Send email notifications (Optional)
+    if (process.env.SEND_EMAIL_ALERTS === 'true') {
+      try {
+        await transporter.sendMail({
+          from: `"Business Portal" <${process.env.EMAIL_USER}>`,
+          to: process.env.ADMIN_ALERT_EMAIL,
+          subject: 'New Contact Form Submission',
+          html: `<h3>New Message Received</h3>
+                 <ul>
+                   <li><b>Name:</b> ${name}</li>
+                   <li><b>Email:</b> ${email}</li>
+                   <li><b>Phone:</b> ${phone || 'N/A'}</li>
+                   <li><b>Message:</b> ${message}</li>
+                 </ul>`,
+        });
+      } catch (emailErr) {
+        console.error('[Email Error] Failed to send notification:', emailErr.message);
+      }
+    }
+
+    return res.status(200).json({ message: 'Submission completed successfully.' });
   } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ error: 'Internal processing error.' });
+    console.error('[Server Error] Submission failed:', error);
+    return res.status(500).json({ error: 'Internal server error processing submission.' });
   }
 });
 
+// Single Page Application (SPA) catch-all routing for production
 if (process.env.NODE_ENV === 'production') {
   server.get('*', (req, res) => {
     res.sendFile(join(__dirname, '../frontend/dist', 'index.html'));
   });
 }
 
-server.listen(port, () => console.log(`Backend live on port ${port}`));
+// Start backend server
+server.listen(port, async () => {
+  console.log(`Backend server running on port ${port}`);
+  await initDatabase();
+});

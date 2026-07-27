@@ -21,19 +21,31 @@ export default function ContactUs() {
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ loading: false, message: 'Thank you! Your message has been saved and synced.', isError: false });
+        setStatus({
+          loading: false,
+          message: 'Thank you! Your message has been sent successfully.',
+          isError: false,
+        });
         setFormData({ name: '', email: '', phone: '', message: '' });
       } else {
-        setStatus({ loading: false, message: result.error || 'Submission failed.', isError: true });
+        setStatus({
+          loading: false,
+          message: result.error || 'Submission failed. Please try again.',
+          isError: true,
+        });
       }
     } catch (error) {
-      setStatus({ loading: false, message: 'Network error. Please try again later.', isError: true });
+      setStatus({
+        loading: false,
+        message: 'Network error. Please check your connection.',
+        isError: true,
+      });
     }
   };
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-4 relative overflow-hidden">
-      {/* Decorative Background Elements for YouTube ASMR Visuals */}
+      {/* Decorative background visual elements */}
       <div className="absolute w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -top-12 -left-12"></div>
       <div className="absolute w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -bottom-12 -right-12"></div>
 
@@ -44,7 +56,7 @@ export default function ContactUs() {
           <div>
             <h2 className="text-3xl font-bold tracking-tight mb-4">Get in touch</h2>
             <p className="text-indigo-200 text-sm leading-relaxed">
-              Have a premium system or platform requirement? Drop us a line. Our hybrid automation system guarantees secure multi-layer syncing.
+              Have a question or requirement? Send us a message and our system will deliver it directly to our dashboard.
             </p>
           </div>
 
@@ -55,18 +67,20 @@ export default function ContactUs() {
             </div>
             <div className="flex items-center space-x-3 text-sm text-indigo-100">
               <span className="text-lg">⏳</span>
-              <span>Automated 24/7 Processing</span>
+              <span>Automated Processing</span>
             </div>
           </div>
 
           <p className="text-xs text-indigo-300/80">Enterprise Ready Pipeline v1.0</p>
         </div>
 
-        {/* Form Part Section */}
+        {/* Form Input Section */}
         <form onSubmit={handleSubmit} className="md:w-3/5 p-8 flex flex-col justify-between space-y-5 bg-slate-900/40">
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Full Name</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                Full Name
+              </label>
               <input
                 type="text"
                 name="name"
@@ -80,7 +94,9 @@ export default function ContactUs() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Email Address</label>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                  Email Address
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -92,7 +108,9 @@ export default function ContactUs() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                  Phone Number
+                </label>
                 <input
                   type="text"
                   name="phone"
@@ -105,14 +123,16 @@ export default function ContactUs() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Your Message</label>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                Your Message
+              </label>
               <textarea
                 name="message"
                 required
                 rows="4"
                 value={formData.message}
                 onChange={handleChange}
-                placeholder="Tell us about your project infrastructure needs..."
+                placeholder="Write your message here..."
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
               ></textarea>
             </div>
@@ -123,17 +143,21 @@ export default function ContactUs() {
             disabled={status.loading}
             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-lg transition-all transform active:scale-[0.98] disabled:opacity-50 flex justify-center items-center shadow-lg shadow-indigo-600/20"
           >
-            {status.loading ? 'Processing System...' : 'Deploy Submission'}
+            {status.loading ? 'Sending Message...' : 'Send Message'}
           </button>
         </form>
       </div>
 
-      {/* Modern Feedback Toast Notification Popup */}
+      {/* Status Toast Notification */}
       {status.message && (
-        <div className={`fixed bottom-6 right-6 px-6 py-3.5 rounded-xl border shadow-2xl backdrop-blur-md max-w-sm transition-all animate-bounce ${
-          status.isError ? 'bg-red-950/80 border-red-500/30 text-red-200' : 'bg-emerald-950/80 border-emerald-500/30 text-emerald-200'
-        }`}>
-          <p className="text-sm font-semibold">{status.isError ? '🛑 System Alert' : '✅ Sync Dynamic Completed'}</p>
+        <div
+          className={`fixed bottom-6 right-6 px-6 py-3.5 rounded-xl border shadow-2xl backdrop-blur-md max-w-sm transition-all ${
+            status.isError
+              ? 'bg-red-950/80 border-red-500/30 text-red-200'
+              : 'bg-emerald-950/80 border-emerald-500/30 text-emerald-200'
+          }`}
+        >
+          <p className="text-sm font-semibold">{status.isError ? 'System Alert' : 'Success'}</p>
           <p className="text-xs opacity-90 mt-1">{status.message}</p>
         </div>
       )}
