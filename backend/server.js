@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Initialize Knex connection using MySQL2 database driver
 const db = knex({
-  client: 'mysql2', // Specifies database client driver (requires 'mysql2' package)
+  client: 'mysql2', // Specifies database client driver (requires 'mysql2' package installed in backend)
   connection: {
     host: process.env.DB_HOST || '127.0.0.1', // Database connection host address
     user: process.env.DB_USER || 'root',      // Database user username
