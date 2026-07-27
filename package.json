@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:backend": "cd backend && node server.js",
+    "start:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
   },
   "repository": {
     "type": "git",
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.5.2",
+    "concurrently": "^10.0.3",
     "postcss": "^8.5.16",
     "tailwindcss": "^4.3.2"
   }
