@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Explore three editable contact-form layouts from FormPilot Contact Kit.">
+<title>FormPilot • 3 Contact Form Styles</title>
+<style>
+/* FormPilot 3-layout edition: standalone CSS, no CDN dependencies */
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#202a32;background:#f3f2ee;font-synthesis:none;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit}svg{display:inline-block;vertical-align:middle;flex-shrink:0}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #4fc6c0;outline-offset:3px}
+.fp-demo-header{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;background:#fff;padding:15px clamp(16px,3vw,46px);border-bottom:1px solid #e6e7e5;position:relative;z-index:4}.fp-brand{font-weight:800;letter-spacing:-.05em;font-size:21px;color:#1d343d}.fp-brand i{font-style:normal;color:#31a39b}.fp-demo-sub{color:#718088;font-size:12px;margin:3px 0 0}.fp-picker{display:flex;align-items:center;gap:5px;background:#f1f4f3;padding:5px;border-radius:100px;flex-wrap:wrap}.fp-picker button{border:0;background:transparent;color:#5b676b;padding:9px 16px;border-radius:100px;font-size:12px;font-weight:700;transition:background .2s,transform .2s}.fp-picker button[aria-pressed="true"]{color:#163b39;background:white;box-shadow:0 2px 12px #213a3c18}.fp-picker button:hover{transform:translateY(-1px)}.fp-top-note{color:#77848b;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.fp-scene{position:relative;isolation:isolate;overflow:hidden;min-height:calc(100vh - 77px);display:flex;align-items:center;justify-content:center;padding:58px 24px 65px;transition:background .2s}.fp-scene::before,.fp-scene::after{content:"";position:absolute;z-index:-1;pointer-events:none}.fp-card{width:min(1080px,100%);position:relative;z-index:1;animation:fp-enter .6s both}.fp-title{margin:12px 0 13px;letter-spacing:-.04em;font-size:clamp(36px,4.8vw,59px);line-height:1.05;font-weight:730}.fp-kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.24em;text-transform:uppercase}.fp-kicker::before{content:"";width:20px;height:1px;background:currentColor}.fp-subtitle{font-size:15px;line-height:1.75;max-width:500px;margin:0}.fp-contact-links{display:flex;flex-wrap:wrap;gap:12px 24px;margin-top:23px;align-items:center}.fp-contact-links a{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:13px;text-decoration:none}.fp-icon{display:inline-grid;place-items:center;width:32px;height:32px;border:1px solid currentColor;border-radius:50%;opacity:.95}.fp-icon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.fp-address{font-size:12px;opacity:.75}
+.fp-form{width:100%}.fp-form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px 19px}.fp-field{display:flex;flex-direction:column;gap:7px;min-width:0}.fp-field label{font-size:11px;font-weight:750;letter-spacing:.035em}.fp-required{color:var(--accent,#20978d)}.fp-optional{font-size:11px;opacity:.67;font-weight:450}.fp-field input,.fp-field textarea,.fp-field select{border:1px solid var(--field-border,#dce6e6);color:var(--field-text,#23333e);background:var(--field-bg,#fff);width:100%;border-radius:10px;padding:13px 15px;font-size:13px;min-height:48px;box-shadow:none;transition:border-color .15s,box-shadow .15s}.fp-field select{appearance:auto}.fp-field textarea{line-height:1.65;resize:vertical;min-height:150px}.fp-field input::placeholder,.fp-field textarea::placeholder{color:var(--placeholder,#87979b)}.fp-field input:focus,.fp-field select:focus,.fp-field textarea:focus{outline:none;border-color:var(--accent,#1daaa2);box-shadow:0 0 0 3px #38bba72b}.fp-field [aria-invalid="true"]{border-color:#d26b5e}.fp-field-error{color:#db6355;font-size:11px}.fp-wide{grid-column:1/-1}.fp-form-foot{margin-top:17px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.fp-hint{font-size:11px;opacity:.7;margin:0}.fp-submit{display:inline-flex;justify-content:center;align-items:center;gap:22px;padding:14px 21px;min-height:49px;min-width:183px;border:0;border-radius:100px;font-size:13px;font-weight:750;letter-spacing:.01em;transition:transform .18s,box-shadow .18s}.fp-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 9px 25px #1114}.fp-submit:disabled{opacity:.57;cursor:wait}.fp-arrow{font-size:19px;font-weight:500}.fp-notice{margin-top:15px;padding:12px 14px;font-size:12px;border-radius:9px;background:#dbfff3;color:#135c46;border:1px solid #63c6a3}.fp-notice.error{background:#ffefea;color:#a43f34;border-color:#eaa299}.fp-trap{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;left:-10000px!important}.fp-footnote{position:absolute;bottom:16px;left:24px;right:24px;text-align:center;font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.64;pointer-events:none}
+/* Style 1: atmospheric glass overlay and familiar two-column contact form */
+.fp-glass{--accent:#7fede0;--field-border:rgba(255,255,255,.14);--field-bg:#f9fcfc;--field-text:#1b3740;background:linear-gradient(120deg,#081b25cf,#173846bf 54%,#071821e0),radial-gradient(ellipse at 85% 45%,#b0a390 0%,#566c79 29%,transparent 55%),linear-gradient(145deg,#213c4d 0%,#7c8987 46%,#0c273a 100%);color:#f3fbfb}.fp-glass::before{inset:0;background:linear-gradient(90deg,transparent 22%,#c9cfce24 23%,transparent 24%,transparent 52%,#c9cfce1c 53%,transparent 54%),repeating-linear-gradient(0deg,transparent 0 174px,#fafafa1a 175px,transparent 177px);opacity:.57}.fp-glass::after{width:450px;height:450px;border-radius:50%;right:-170px;bottom:-260px;background:#a3f9e12d;filter:blur(70px)}.fp-glass .fp-card{background:#071c2ca1;border:1px solid #ffffff30;backdrop-filter:blur(16px);border-radius:24px;box-shadow:0 24px 80px #04172455;padding:36px clamp(22px,6vw,78px) 40px;max-width:1030px}.fp-glass .fp-hero{text-align:center}.fp-glass .fp-kicker{color:#8ae9dc}.fp-glass .fp-subtitle{color:#cfdfdf;margin:0 auto}.fp-glass .fp-title{font-size:clamp(34px,4.6vw,54px);letter-spacing:.03em}.fp-glass .fp-contact-links{justify-content:center;margin-bottom:30px}.fp-glass .fp-icon{color:#bdeee8}.fp-glass .fp-form-grid{grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,auto);gap:12px 22px}.fp-glass .fp-field[data-field="name"]{grid-column:1;grid-row:1}.fp-glass .fp-field[data-field="email"]{grid-column:1;grid-row:2}.fp-glass .fp-field[data-field="phone"]{grid-column:1;grid-row:3}.fp-glass .fp-field[data-field="enquiryType"]{grid-column:1;grid-row:4}.fp-glass .fp-field[data-field="message"]{grid-column:2;grid-row:1/5}.fp-glass .fp-field textarea{flex:1;min-height:216px}.fp-glass .fp-form-foot{justify-content:center;flex-direction:column-reverse;gap:12px;margin-top:27px}.fp-glass .fp-submit{background:#a4f0e6;color:#103c41}.fp-glass .fp-hint{color:#cfdede}.fp-glass .fp-field label{color:#deeeee}.fp-glass .fp-field-error{color:#ffb9a7}
+/* Style 2: warm editorial, vertical botanical abstract motif, asymmetric split layout */
+.fp-editorial{--accent:#28705e;--field-border:#d9dfd7;--field-bg:#ffffff;--field-text:#26362f;--placeholder:#99a49b;background:#ebece4;color:#1b3531}.fp-editorial::before{width:44vw;height:75vh;left:-18vw;top:5%;background:radial-gradient(ellipse,#a2bcad63,transparent 68%);filter:blur(40px)}.fp-editorial .fp-card{display:grid;grid-template-columns: .82fr 1.18fr;min-height:590px;max-width:1100px;background:#fbfaf7;border-radius:19px;box-shadow:0 23px 70px #203b3030;overflow:hidden}.fp-editorial .fp-hero{background:#204a40;padding:60px clamp(30px,5vw,58px);color:#f8f3e7;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}.fp-editorial .fp-hero::before{content:"";position:absolute;right:-120px;top:40px;width:330px;height:500px;border:55px solid #c9ddc819;border-radius:48% 52% 51% 48%;transform:rotate(-32deg)}.fp-editorial .fp-hero::after{content:"";position:absolute;right:25px;bottom:-130px;width:220px;height:260px;border:30px solid #dfd7a721;border-radius:52%;transform:rotate(30deg)}.fp-editorial .fp-hero>*{z-index:1;position:relative}.fp-editorial .fp-kicker{color:#cceabf}.fp-editorial .fp-title{font-family:Georgia,Times,serif;letter-spacing:-.045em;font-weight:400;font-size:clamp(39px,4.5vw,62px)}.fp-editorial .fp-subtitle{color:#d0dfd4}.fp-editorial .fp-contact-links{display:flex;flex-direction:column;align-items:flex-start;margin-top:55px}.fp-editorial .fp-icon{color:#cde7cd}.fp-editorial .fp-form{padding:57px clamp(24px,5vw,57px);display:flex;justify-content:center;flex-direction:column}.fp-editorial .fp-field label{color:#34554b}.fp-editorial .fp-form-foot{margin-top:21px}.fp-editorial .fp-submit{background:#204e40;color:#fff}.fp-editorial .fp-hint{color:#6e8177}.fp-editorial .fp-footnote{color:#5b7166}
+/* Style 3: luminous aurora / digital creative agencies */
+.fp-aurora{--accent:#b5f66b;--field-border:#3a5068;--field-bg:#101e2f;--field-text:#e9f3ff;--placeholder:#9daeb9;background:radial-gradient(circle at 15% 25%,#1b74816b,transparent 38%),radial-gradient(circle at 85% 84%,#5945a873,transparent 45%),#0a1121;color:#f5f5ff}.fp-aurora::before{left:-200px;top:-180px;width:550px;height:550px;border-radius:50%;background:radial-gradient(circle,#1dd2b24b,transparent 67%);filter:blur(17px)}.fp-aurora::after{right:-230px;bottom:-230px;width:730px;height:730px;border-radius:50%;background:radial-gradient(circle,#7664e755,transparent 66%);filter:blur(30px)}.fp-aurora .fp-card{display:grid;grid-template-columns:.92fr 1.08fr;align-items:center;gap:45px;max-width:1100px}.fp-aurora .fp-hero{padding:24px 4px 24px 5px}.fp-aurora .fp-kicker{color:#b6f76d}.fp-aurora .fp-title{font-size:clamp(45px,5.9vw,77px);line-height:1.02;letter-spacing:-.068em}.fp-aurora .fp-subtitle{color:#b7c3d4}.fp-aurora .fp-contact-links{margin-top:40px;flex-direction:column;align-items:flex-start}.fp-aurora .fp-icon{border-color:#b1ffc64b;color:#b8f0ba}.fp-aurora .fp-form{background:#152238dc;border:1px solid #ffffff30;border-radius:24px;padding:clamp(24px,4vw,44px);box-shadow:0 35px 90px #0508177d;backdrop-filter:blur(14px)}.fp-aurora .fp-form-grid{gap:15px}.fp-aurora .fp-field label{color:#cbd8e6}.fp-aurora .fp-submit{background:#b7f87a;color:#122b20}.fp-aurora .fp-hint{color:#bdcade}.fp-aurora .fp-field-error{color:#ffb4a6}.fp-aurora .fp-footnote{color:#c6c9de}
+@keyframes fp-enter{from{opacity:0;transform:translateY(19px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}@media(max-width:850px){.fp-aurora .fp-card{gap:25px}.fp-editorial .fp-hero{padding:40px 30px}.fp-editorial .fp-form{padding:38px 25px}.fp-demo-header{justify-content:center}.fp-top-note{display:none}}@media(max-width:680px){.fp-scene{padding:24px 14px 48px;min-height:calc(100vh - 110px)}.fp-glass .fp-card{padding:30px 21px}.fp-glass .fp-form-grid{display:grid;grid-template-columns:1fr;grid-template-rows:auto}.fp-glass .fp-field[data-field]{grid-column:auto;grid-row:auto}.fp-glass .fp-field textarea{min-height:154px}.fp-editorial .fp-card,.fp-aurora .fp-card{grid-template-columns:1fr}.fp-editorial .fp-hero{min-height:290px;padding:35px 29px}.fp-editorial .fp-contact-links{margin-top:24px;gap:10px}.fp-editorial .fp-title{font-size:42px}.fp-editorial .fp-form{padding:28px 24px 32px}.fp-aurora .fp-card{gap:15px}.fp-aurora .fp-hero{padding:17px 12px}.fp-aurora .fp-contact-links{margin-top:19px;gap:10px}.fp-aurora .fp-form{padding:24px 19px}.fp-form-grid{grid-template-columns:1fr}.fp-wide{grid-column:auto}.fp-form-foot{justify-content:center}.fp-hint{text-align:center}.fp-demo-header{gap:12px}.fp-picker{justify-content:center}.fp-picker button{padding:8px 12px}.fp-footnote{display:none}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+.fp-contact-links>span{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600}
+
+/* This demo embeds ALL of its CSS and JavaScript, so Windows archive viewers can't lose them. */
+.fp-demo-banner{background:#eff9f4;border-bottom:1px solid #dcebe2;color:#2d6a55;text-align:center;padding:8px;font-size:11px;font-weight:700;letter-spacing:.02em}
+</style>
+</head>
+<body>
+<div class="fp-demo-banner">INTERACTIVE DESIGN DEMO &nbsp;•&nbsp; No information is sent or saved</div>
+<header class="fp-demo-header">
+<div><div class="fp-brand">FormPilot<i>.</i></div><p class="fp-demo-sub">Three premium styles. One easy-to-edit form.</p></div>
+<nav class="fp-picker" aria-label="Choose contact page layout"><button type="button" data-layout="glass" aria-pressed="true">01 · Studio Glass</button><button type="button" data-layout="editorial" aria-pressed="false">02 · Editorial</button><button type="button" data-layout="aurora" aria-pressed="false">03 · Aurora</button></nav>
+<span class="fp-top-note">Live design preview</span>
+</header>
+<main id="scene" class="fp-scene fp-glass">
+  <section id="card" class="fp-card" aria-labelledby="fp-title">
+    <header class="fp-hero">
+      <span class="fp-kicker">YOUR BUSINESS</span>
+      <h1 id="fp-title" class="fp-title">Let's get in touch.</h1>
+      <p class="fp-subtitle">Have a project in mind or just a quick question? We'd love to hear from you.</p>
+      <div class="fp-contact-links">
+        <span><span class="fp-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.7 3.8 9 3l3 4-2 2c1.4 2.3 2.8 3.7 5 5l2-2 4 3-1 2.3c-.6 1.5-2 2-3.6 1.6C10 17.3 6.7 14 5.1 7.4 4.7 5.8 6.7 3.8Z"/></svg></span><span>+64 21 000 0000</span></span>
+        <span><span class="fp-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 7 9-7"/></svg></span><span>hello@yourbusiness.example</span></span>
+      </div>
+    </header>
+    <form id="demoForm" class="fp-form" novalidate>
+      <div class="fp-form-grid">
+        <div data-field="name" class="fp-field"><label for="name">Your name <span class="fp-required">*</span></label><input id="name" name="name" placeholder="Your full name" autocomplete="name" maxlength="120" required><small class="fp-field-error" hidden></small></div>
+        <div data-field="email" class="fp-field"><label for="email">Email address <span class="fp-required">*</span></label><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" maxlength="254" required><small class="fp-field-error" hidden></small></div>
+        <div data-field="phone" class="fp-field"><label for="phone">Phone <span class="fp-optional">(optional)</span></label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="Your phone number" maxlength="40"></div>
+        <div data-field="enquiryType" class="fp-field"><label for="enquiryType">Enquiry type <span class="fp-required">*</span></label><select id="enquiryType" name="enquiryType" required><option value="">Please choose an option</option><option>General enquiry</option><option>Website project</option><option>Support request</option><option>Request a quote</option></select><small class="fp-field-error" hidden></small></div>
+        <div data-field="message" class="fp-field fp-wide"><label for="message">Your message <span class="fp-required">*</span></label><textarea id="message" name="message" placeholder="Tell us a little about your project..." minlength="10" maxlength="4000" required></textarea><small class="fp-field-error" hidden></small></div>
+      </div>
+      <div class="fp-form-foot"><p class="fp-hint">* Required fields · Your details stay private.</p><button type="submit" class="fp-submit">Send message <span class="fp-arrow" aria-hidden="true">↗</span></button></div>
+      <div id="notice" class="fp-notice" role="status" aria-live="polite" hidden></div>
+    </form>
+  </section>
+  <footer class="fp-footnote">Made to fit your brand · FormPilot Contact Kit</footer>
+</main>
+<script>
+(() => {
+  'use strict';
+  const scene = document.querySelector('#scene');
+  const card = document.querySelector('#card');
+  const form = document.querySelector('#demoForm');
+  const notice = document.querySelector('#notice');
+  const layoutButtons = Array.from(document.querySelectorAll('[data-layout]'));
+  layoutButtons.forEach((button) => button.addEventListener('click', () => {
+    const next = button.dataset.layout;
+    scene.className = `fp-scene fp-${next}`;
+    card.style.animation = 'none';
+    void card.offsetHeight;
+    card.style.animation = '';
+    layoutButtons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+    notice.hidden = true;
+  }));
+  form.querySelectorAll('input,select,textarea').forEach(field => field.addEventListener('input', () => {
+    const error = field.parentElement.querySelector('.fp-field-error');
+    if (error) { error.hidden = true; error.textContent = ''; }
+    field.removeAttribute('aria-invalid');
+  }));
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const values = new FormData(form);
+    const checks = [
+      ['name', String(values.get('name')||'').trim().length>=2, 'Please enter at least 2 characters.'],
+      ['email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(values.get('email')||'').trim()), 'Enter a valid email address.'],
+      ['enquiryType', Boolean(values.get('enquiryType')), 'Choose an enquiry type.'],
+      ['message', String(values.get('message')||'').trim().length>=10, 'Please enter at least 10 characters.']
+    ];
+    let firstInvalid = null;
+    for (const [name, valid, errorMessage] of checks) {
+      const field = form.elements.namedItem(name);
+      const error = field.parentElement.querySelector('.fp-field-error');
+      if (error) { error.textContent = valid?'':errorMessage; error.hidden = valid; }
+      field.setAttribute('aria-invalid', String(!valid));
+      if (!valid && !firstInvalid) firstInvalid = field;
+    }
+    if (firstInvalid) { notice.hidden = true; firstInvalid.focus(); return; }
+    notice.className = 'fp-notice';
+    notice.textContent = 'Preview successful! In the purchased version, your message is saved to the database. This demo sends nothing.';
+    notice.hidden = false;
+    form.reset();
+  });
+})();
+</script>
+</body>
+</html>
